@@ -16,18 +16,44 @@ dynamodb = new aws.DynamoDB();
 
 params = {
     TableName: 'users',
-    KeySchema: [{
-        AttributeName: 'email',
-        KeyType      : 'HASH'
-    }],
-    AttributeDefinitions: [{
-        AttributeName: 'email',
-        AttributeType: 'S'
-    }],
+    KeySchema: [
+        {
+            AttributeName: 'email',
+            KeyType      : 'HASH',
+        }
+    ],
+    AttributeDefinitions: [
+        {
+            AttributeName: 'email',
+            AttributeType: 'S',
+        },
+        {
+            AttributeName: 'id',
+            AttributeType: 'N',
+        }
+    ],
     ProvisionedThroughput: {
-        ReadCapacityUnits : 5,
-        WriteCapacityUnits: 5
-    }
+        ReadCapacityUnits: 5,
+        WriteCapacityUnits: 5,
+    },
+    GlobalSecondaryIndexes: [
+        {
+            IndexName: 'gsiId',
+            KeySchema: [
+                {
+                    AttributeName: 'id',
+                    KeyType: 'HASH',
+                }
+            ],
+            Projection: {
+                ProjectionType: 'ALL'
+            },
+            ProvisionedThroughput: {
+                ReadCapacityUnits: 5,
+                WriteCapacityUnits: 5,
+            }
+        }
+    ]
 };
 
 dynamodb.createTable(params, function(err, data) {

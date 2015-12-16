@@ -28,17 +28,18 @@ module.exports = function (cfg, db) {
     Repo.getById = function (id) {
         var params = {
             TableName                : table,
-            FilterExpression         : '#id = :id',
+            IndexName                : 'gsiId',
+            KeyConditionExpression   : '#id = :id',
             ExpressionAttributeNames : {
-                '#id': 'id'
+               '#id': 'id'
             },
             ExpressionAttributeValues : {
-                ':id'  : id
+               ':id': id
             }
         };
 
         return new Promise(function (resolve, reject) {
-            db.dynamodb.scan(params, function (err, data) {
+            db.dynamodb.query(params, function (err, data) {
                 if (err) {
                     return reject(err);
                 }
@@ -47,7 +48,7 @@ module.exports = function (cfg, db) {
                     return resolve(null);
                 }
 
-                console.log('getById ', id);
+                console.log('querying GSI id => ', id);
 
                 resolve(_.create(new User(), _.first(data.Items)));
             });
@@ -76,11 +77,10 @@ module.exports = function (cfg, db) {
                     return resolve(null);
                 }
 
-                console.log('getByEmail ', email);
+                console.log('querying hash email => ', email);
 
                 resolve(_.create(new User(), _.first(data.Items)));
             });
-
         });
     };
 
